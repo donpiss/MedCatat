@@ -1,6 +1,7 @@
 from datetime import datetime
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
 # Konfigurasi halaman
 st.set_page_config(
@@ -302,3 +303,29 @@ elif menu == "📅 Schedule Appointment":
             st.dataframe(df_all_appt, use_container_width=True, hide_index=True)
         else:
             st.info("Belum ada riwayat janji temu.")
+
+
+# SCRIPT AUTO-HIDE SIDEBAR SETELAH PILIH MENU (KHUSUS MOBILE / RESPONSIF)
+components.html(
+    """
+    <script>
+        const streamlitDoc = window.parent.document;
+        const menuButtons = streamlitDoc.querySelectorAll('[data-testid="stSidebarNav"] a, .stRadio label');
+        
+        menuButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Mencari tombol collapse/tutup sidebar bawaan streamlit dan men-trigger klik-nya
+                const collapseButton = streamlitDoc.querySelector('[data-testid="collapsedControl"]');
+                if (collapseButton) {
+                    // Cek apakah sidebar sedang terbuka (lebar sidebar > 0)
+                    const sidebar = streamlitDoc.querySelector('[data-testid="stSidebar"]');
+                    if (sidebar && window.innerWidth <= 768) {
+                        collapseButton.click();
+                    }
+                }
+            });
+        });
+    </script>
+    """,
+    height=0,
+)
