@@ -1,11 +1,10 @@
 from datetime import datetime
 import pandas as pd
 import streamlit as st
-import streamlit.components.v1 as components
 
 # Konfigurasi halaman
 st.set_page_config(
-    page_title="Clinic Management System", layout="centered", page_icon="🩺"
+    page_title="Clinic Management System", layout="centered", page_icon="🩺", initial_sidebar_state="auto"
 )
 
 # Custom CSS untuk tampilan lebih profesional, minimalis, dan clean
@@ -25,6 +24,21 @@ st.markdown(
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             border: 1px solid #eef0f2;
+        }
+        
+        footer {visibility: hidden;}
+        
+        /* Pengaturan padding khusus layar HP */
+        @media (max-width: 768px) {
+            .block-container {
+                padding-top: 1rem;
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+            }
+            /* Membuat tombol di sidebar memenuhi lebar layar HP */
+            .stButton>button {
+                width: 100%;
+            }
         }
     </style>
 """,
@@ -303,29 +317,3 @@ elif menu == "📅 Schedule Appointment":
             st.dataframe(df_all_appt, use_container_width=True, hide_index=True)
         else:
             st.info("Belum ada riwayat janji temu.")
-
-
-# SCRIPT AUTO-HIDE SIDEBAR SETELAH PILIH MENU (KHUSUS MOBILE / RESPONSIF)
-components.html(
-    """
-    <script>
-        const streamlitDoc = window.parent.document;
-        const menuButtons = streamlitDoc.querySelectorAll('[data-testid="stSidebarNav"] a, .stRadio label');
-        
-        menuButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                // Mencari tombol collapse/tutup sidebar bawaan streamlit dan men-trigger klik-nya
-                const collapseButton = streamlitDoc.querySelector('[data-testid="collapsedControl"]');
-                if (collapseButton) {
-                    // Cek apakah sidebar sedang terbuka (lebar sidebar > 0)
-                    const sidebar = streamlitDoc.querySelector('[data-testid="stSidebar"]');
-                    if (sidebar && window.innerWidth <= 768) {
-                        collapseButton.click();
-                    }
-                }
-            });
-        });
-    </script>
-    """,
-    height=0,
-)
