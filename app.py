@@ -25,7 +25,8 @@ st.markdown(
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             border: 1px solid #eef0f2;
         }
-        
+
+        #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
         
         /* Pengaturan padding khusus layar HP */
