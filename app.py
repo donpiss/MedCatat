@@ -4,7 +4,7 @@ import streamlit as st
 
 # Konfigurasi halaman
 st.set_page_config(
-    page_title="Clinic Management System", layout="wide", page_icon="🩺"
+    page_title="Clinic Management System", layout="centered", page_icon="🩺"
 )
 
 # Custom CSS untuk tampilan lebih profesional, minimalis, dan clean
