@@ -85,9 +85,7 @@ if menu == "🏠 Dashboard":
     # Statistik utama (Metrik Cards)
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.metric(
-            label="Total Pasien", value=len(st.session_state["patients"])
-        )
+        st.metric(label="Total Pasien", value=len(st.session_state["patients"]))
     with col2:
         today_str = datetime.now().strftime("%Y-%m-%d")
         today_count = len(
@@ -108,15 +106,18 @@ if menu == "🏠 Dashboard":
     st.subheader("📌 Jadwal Kunjungan Terdekat")
 
     if st.session_state["appointments"]:
-        now = datetime.now()
         df_appointments = pd.DataFrame(st.session_state["appointments"])
-        df_appointments["Datetime"] = pd.to_datetime(
-            df_appointments["Date"] + " " + df_appointments["Time"],
-            errors="coerce",
-        )
-        df_appointments = df_appointments[
-            df_appointments["Datetime"] >= now
-        ].sort_values(by="Datetime")
+
+        # Konversi kolom Date dan Time ke tipe datetime untuk diurutkan
+        try:
+            df_appointments["Datetime"] = pd.to_datetime(
+                df_appointments["Date"] + " " + df_appointments["Time"],
+                errors="coerce",
+            )
+            # Urutkan dari yang paling dekat dengan waktu sekarang
+            df_appointments = df_appointments.sort_values(by="Datetime")
+        except Exception:
+            pass
 
         if not df_appointments.empty:
             for i, row in df_appointments.iterrows():
