@@ -71,10 +71,13 @@ menu_options = [
     "📅 Schedule Appointment",
 ]
 
-# Callback saat radio button dipilih
+# Inisialisasi session state
+if "trigger_close_id" not in st.session_state:
+    st.session_state.trigger_close_id = 0
+
 def on_menu_change():
-    # Tandai bahwa sidebar perlu ditutup setelah render
-    st.session_state.close_sidebar = True
+    # Buat ID unik baru setiap kali radio button berganti
+    st.session_state.trigger_close_id += 1
 
 with st.sidebar:
     st.title("Menu Navigasi")
@@ -101,35 +104,34 @@ st.sidebar.info(
     "Sistem Manajemen Klinik Sederhana\nVersi 1.0 - Clean & Minimalist"
 )
 
-# JavaScript untuk menutup sidebar secara otomatis di mobile view
-if st.session_state.get("close_sidebar", False):
+# Eksekusi penutupan sidebar jika ada pemicu (ID > 0)
+if st.session_state.trigger_close_id > 0:
+    run_id = st.session_state.trigger_close_id
     components.html(
-        """
+        f"""
+        <!-- Run ID: {run_id} (memaksa iframe me-reload script setiap kali diklik) -->
         <script>
-        // Cari tombol collapse sidebar di parent window Streamlit
-        const closeSidebarOnMobile = () => {
-            const parentDoc = window.parent.document;
+        (function() {{
+            const doc = window.parent.document;
             
-            // Selector tombol collapse/close sidebar Streamlit
-            const collapseBtn = parentDoc.querySelector(
-                'button[data-testid="stSidebarCollapseButton"]'
-            );
+            // Selector tombol penutup mobile & desktop
+            const closeBtn = doc.querySelector('button[data-testid="stSidebarCloseButton"]') 
+                          || doc.querySelector('button[data-testid="stSidebarCollapseButton"]')
+                          || doc.querySelector('[data-testid="stSidebar"] button');
             
-            // Hanya klik jika tombol ditemukan dan sidebar sedang terbuka
-            if (collapseBtn) {
-                collapseBtn.click();
-            }
-        };
+            const sidebar = doc.querySelector('section[data-testid="stSidebar"]');
+            const isExpanded = sidebar ? sidebar.getAttribute("aria-expanded") === "true" : true;
 
-        // Beri sedikit jeda agar DOM render selesai
-        setTimeout(closeSidebarOnMobile, 150);
+            // Klik hanya jika tombol ada dan sidebar terbuka
+            if (closeBtn && isExpanded) {{
+                closeBtn.click();
+            }}
+        }})();
         </script>
         """,
         height=0,
         width=0,
     )
-    # Reset flag state
-    st.session_state.close_sidebar = False
 
 # ----------------------------------------------------
 # 1. DASHBOARD
