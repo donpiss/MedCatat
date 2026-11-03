@@ -10,11 +10,10 @@ st.set_page_config(
     initial_sidebar_state="auto",
 )
 
-# Custom CSS untuk merapatkan jarak atas & merapikan tampilan
+# Custom CSS untuk merapikan tampilan
 st.markdown(
     """
     <style>
-        /* Mengurangi padding bawaan bagian atas halaman Streamlit */
         .block-container {
             padding-top: 1.5rem !important;
             padding-bottom: 2rem !important;
@@ -37,7 +36,7 @@ st.markdown(
             display: none;
         }
     </style>
-""",
+    """,
     unsafe_allow_html=True,
 )
 
@@ -54,17 +53,13 @@ if "selected_patient" not in st.session_state:
 if "menu" not in st.session_state:
     st.session_state["menu"] = "🏠 Dashboard"
 
-
 # Fungsi untuk navigasi otomatis ke detail pasien
 def show_patient_details(patient_name):
     st.session_state["menu"] = "📋 View Patients"
     st.session_state["selected_patient"] = patient_name
     st.rerun()
 
-
-# ----------------------------------------------------
-# SIDEBAR NAVIGASI
-# ----------------------------------------------------
+# Sidebar Navigasi
 st.sidebar.title("🩺 MedCatat")
 st.sidebar.markdown("---")
 
@@ -91,18 +86,16 @@ st.sidebar.info(
     "Sistem Manajemen Klinik Sederhana\nVersi 1.0 - Clean & Minimalist"
 )
 
-# ----------------------------------------------------
-# SCRIPT JS AGAR SIDEBAR AUTO-CLOSE DI MOBILE SAAT MENU DIKLIK
-# ----------------------------------------------------
+# JavaScript untuk menutup sidebar secara otomatis di mobile view
 st.components.v1.html(
     """
     <script>
         const doc = window.parent.document;
-        
+
         // Fungsi untuk mencari dan menutup sidebar
         function setupSidebarClose() {
             const radioOptions = doc.querySelectorAll('[data-testid="stSidebar"] [data-testid="stRadio"] label');
-            
+
             radioOptions.forEach(option => {
                 // Hindari duplikasi event listener
                 if (!option.hasAttribute('data-listener-attached')) {
