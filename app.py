@@ -85,7 +85,16 @@ with st.sidebar:
         on_change=on_menu_change
     )
 
-menu = st.session_state["menu"]
+# Sinkronisasi menu dengan session_state
+# selected_menu = st.sidebar.radio(
+#     "Navigasi", menu_options, index=menu_options.index(st.session_state["menu"])
+# )
+
+# if selected_menu != st.session_state["menu"]:
+#     st.session_state["menu"] = selected_menu
+#     st.rerun()
+
+# menu = st.session_state["menu"]
 
 st.sidebar.markdown("---")
 st.sidebar.info(
@@ -93,7 +102,6 @@ st.sidebar.info(
 )
 
 # JavaScript untuk menutup sidebar secara otomatis di mobile view
-# Script JavaScript untuk menutup sidebar secara otomatis
 if st.session_state.get("close_sidebar", False):
     components.html(
         """
@@ -126,7 +134,7 @@ if st.session_state.get("close_sidebar", False):
 # ----------------------------------------------------
 # 1. DASHBOARD
 # ----------------------------------------------------
-if menu == "🏠 Dashboard":
+if selected == "🏠 Dashboard":
     st.title("📊 Dashboard")
     st.markdown("Ringkasan aktivitas dan jadwal kunjungan klinik hari ini.")
     st.markdown("")
@@ -185,7 +193,7 @@ if menu == "🏠 Dashboard":
 # ----------------------------------------------------
 # 2. TAMBAH PASIEN
 # ----------------------------------------------------
-elif menu == "➕ Add Patient":
+elif selected == "➕ Add Patient":
     st.title("➕ Tambah Pasien Baru")
     st.markdown("Masukkan informasi lengkap pasien pada form di bawah ini.")
     st.markdown("")
@@ -236,7 +244,7 @@ elif menu == "➕ Add Patient":
 # ----------------------------------------------------
 # 3. LIHAT DAFTAR PASIEN & DETAIL
 # ----------------------------------------------------
-elif menu == "📋 View Patients":
+elif selected == "📋 View Patients":
     st.title("📋 Daftar Pasien")
     st.markdown("Kelola dan lihat informasi detail rekam jejak pasien klinik.")
     st.markdown("")
@@ -294,7 +302,7 @@ elif menu == "📋 View Patients":
 # ----------------------------------------------------
 # 4. PENJADWALAN JANJI TEMU
 # ----------------------------------------------------
-elif menu == "📅 Schedule Appointment":
+elif selected == "📅 Schedule Appointment":
     st.title("📅 Penjadwalan Janji Temu")
     st.markdown(
         "Atur jadwal kunjungan konsultasi atau tindakan pasien dengan dokter."
