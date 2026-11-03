@@ -1,11 +1,10 @@
 from datetime import datetime
 import pandas as pd
 import streamlit as st
-import streamlit.components.v1 as components
 
 # Konfigurasi halaman
 st.set_page_config(
-    page_title="Clinic Management System",
+    page_title="Sistem Manajemen Klinik",
     layout="wide",
     page_icon="🩺",
     initial_sidebar_state="auto",
@@ -181,8 +180,8 @@ elif selected == "➕ Add Patient":
     submit = st.button("Simpan Data Pasien", type="primary")
 
     if submit:
-        if name.strip() == "":
-            st.error("Nama lengkap wajib diisi!")
+        if name.strip() == "" or contact.strip() == "":
+            st.toast("⚠️ Gagal! Nama lengkap / Nomor Kontak wajib diisi.")
         else:
             new_patient = {
                 "Name": name,
@@ -206,11 +205,11 @@ elif selected == "📋 View Patients":
     st.markdown("")
 
     if st.session_state["patients"]:
-        df = pd.DataFrame(st.session_state["patients"])
-        st.dataframe(df, use_container_width=True, hide_index=True)
+        # df = pd.DataFrame(st.session_state["patients"])
+        # st.dataframe(df, use_container_width=True, hide_index=True)
 
-        st.markdown("---")
-        st.subheader("🔍 Detail Profil Pasien")
+        # st.markdown("---")
+        # st.subheader("🔍 Detail Profil Pasien")
 
         patient_names = [p["Name"] for p in st.session_state["patients"]]
         default_index = 0
@@ -244,8 +243,10 @@ elif selected == "📋 View Patients":
                         f"**Tanggal Lahir:** {patient_data.get('Date of Birth', '-')}"
                     )
                     st.markdown(f"**Jenis Kelamin:** {patient_data['Gender']}")
+                    st.markdown(f"**Golongan Darah:** {patient_data.get('Blood Type')}")
                 with col_d2:
                     st.markdown(f"**Kontak:** {patient_data['Contact'] or '-'}")
+                    st.markdown(f"**Riwayat Alergi:** {patient_data['Allergies']}")
                     st.markdown(f"**Alamat:** {patient_data['Address'] or '-'}")
                     st.markdown(
                         f"**Terdaftar Sejak:** {patient_data['Date Added']}"
