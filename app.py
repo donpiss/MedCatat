@@ -71,67 +71,21 @@ menu_options = [
     "📅 Schedule Appointment",
 ]
 
-# Inisialisasi session state
-if "trigger_close_id" not in st.session_state:
-    st.session_state.trigger_close_id = 0
-
-def on_menu_change():
-    # Buat ID unik baru setiap kali radio button berganti
-    st.session_state.trigger_close_id += 1
-
-with st.sidebar:
-    st.title("Menu Navigasi")
-    selected = st.radio(
-        "Pilih Halaman:",
-        options=menu_options,
-        key="menu_selection",
-        on_change=on_menu_change
-    )
-
 # Sinkronisasi menu dengan session_state
-# selected_menu = st.sidebar.radio(
-#     "Navigasi", menu_options, index=menu_options.index(st.session_state["menu"])
-# )
+selected_menu = st.sidebar.radio(
+    "Navigasi", menu_options, index=menu_options.index(st.session_state["menu"])
+)
 
-# if selected_menu != st.session_state["menu"]:
-#     st.session_state["menu"] = selected_menu
-#     st.rerun()
+if selected_menu != st.session_state["menu"]:
+    st.session_state["menu"] = selected_menu
+    st.rerun()
 
-# menu = st.session_state["menu"]
+selected = st.session_state["menu"]
 
 st.sidebar.markdown("---")
 st.sidebar.info(
     "Sistem Manajemen Klinik Sederhana\nVersi 1.0 - Clean & Minimalist"
 )
-
-# Eksekusi penutupan sidebar jika ada pemicu (ID > 0)
-if st.session_state.trigger_close_id > 0:
-    run_id = st.session_state.trigger_close_id
-    components.html(
-        f"""
-        <!-- Run ID: {run_id} (memaksa iframe me-reload script setiap kali diklik) -->
-        <script>
-        (function() {{
-            const doc = window.parent.document;
-            
-            // Selector tombol penutup mobile & desktop
-            const closeBtn = doc.querySelector('button[data-testid="stSidebarCloseButton"]') 
-                          || doc.querySelector('button[data-testid="stSidebarCollapseButton"]')
-                          || doc.querySelector('[data-testid="stSidebar"] button');
-            
-            const sidebar = doc.querySelector('section[data-testid="stSidebar"]');
-            const isExpanded = sidebar ? sidebar.getAttribute("aria-expanded") === "true" : true;
-
-            // Klik hanya jika tombol ada dan sidebar terbuka
-            if (closeBtn && isExpanded) {{
-                closeBtn.click();
-            }}
-        }})();
-        </script>
-        """,
-        height=0,
-        width=0,
-    )
 
 # ----------------------------------------------------
 # 1. DASHBOARD
