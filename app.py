@@ -1,6 +1,7 @@
 from datetime import datetime
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
 
 # Konfigurasi halaman
 st.set_page_config(
@@ -70,14 +71,19 @@ menu_options = [
     "📅 Schedule Appointment",
 ]
 
-# Sinkronisasi menu dengan session_state
-selected_menu = st.sidebar.radio(
-    "Navigasi", menu_options, index=menu_options.index(st.session_state["menu"])
-)
+# Callback saat radio button dipilih
+def on_menu_change():
+    # Tandai bahwa sidebar perlu ditutup setelah render
+    st.session_state.close_sidebar = True
 
-if selected_menu != st.session_state["menu"]:
-    st.session_state["menu"] = selected_menu
-    st.rerun()
+with st.sidebar:
+    st.title("Menu Navigasi")
+    selected = st.radio(
+        "Pilih Halaman:",
+        options=menu_options,
+        key="menu_selection",
+        on_change=on_menu_change
+    )
 
 menu = st.session_state["menu"]
 
@@ -87,41 +93,35 @@ st.sidebar.info(
 )
 
 # JavaScript untuk menutup sidebar secara otomatis di mobile view
-st.components.v1.html(
-    """
-    <script>
-        const doc = window.parent.document;
+# Script JavaScript untuk menutup sidebar secara otomatis
+if st.session_state.get("close_sidebar", False):
+    components.html(
+        """
+        <script>
+        // Cari tombol collapse sidebar di parent window Streamlit
+        const closeSidebarOnMobile = () => {
+            const parentDoc = window.parent.document;
+            
+            // Selector tombol collapse/close sidebar Streamlit
+            const collapseBtn = parentDoc.querySelector(
+                'button[data-testid="stSidebarCollapseButton"]'
+            );
+            
+            // Hanya klik jika tombol ditemukan dan sidebar sedang terbuka
+            if (collapseBtn) {
+                collapseBtn.click();
+            }
+        };
 
-        // Fungsi untuk mencari dan menutup sidebar
-        function setupSidebarClose() {
-            const radioOptions = doc.querySelectorAll('[data-testid="stSidebar"] [data-testid="stRadio"] label');
-
-            radioOptions.forEach(option => {
-                // Hindari duplikasi event listener
-                if (!option.hasAttribute('data-listener-attached')) {
-                    option.setAttribute('data-listener-attached', 'true');
-                    option.addEventListener('click', () => {
-                        // Jalankan hanya jika lebar layar masuk kategori mobile (< 768px)
-                        if (window.parent.innerWidth < 768) {
-                            const collapseButtons = doc.querySelectorAll('button[kind="header"]');
-                            collapseButtons.forEach(btn => {
-                                const label = btn.getAttribute('aria-label');
-                                if (label && (label.includes('Collapse') || label.includes('Close') || label.includes('sidebar'))) {
-                                    btn.click();
-                                }
-                            });
-                        }
-                    });
-                }
-            });
-        }
-
-        // Jalankan secara berkala karena Streamlit merender komponen secara dinamis
-        setInterval(setupSidebarClose, 500);
-    </script>
-    """,
-    height=0,
-)
+        // Beri sedikit jeda agar DOM render selesai
+        setTimeout(closeSidebarOnMobile, 150);
+        </script>
+        """,
+        height=0,
+        width=0,
+    )
+    # Reset flag state
+    st.session_state.close_sidebar = False
 
 # ----------------------------------------------------
 # 1. DASHBOARD
