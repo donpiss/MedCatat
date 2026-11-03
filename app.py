@@ -279,7 +279,7 @@ elif selected == "📅 Schedule Appointment":
             with col_f1:
                 date = st.date_input("Tanggal Kunjungan")
             with col_f2:
-                time = st.time_input("Jam Kunjungan")
+                time = st.text_input("Jam Kunjungan", placeholder="Contoh: 10:00")
 
             reason = st.text_area(
                 "Keluhan / Alasan Kunjungan",
@@ -293,12 +293,12 @@ elif selected == "📅 Schedule Appointment":
                 new_appointment = {
                     "Patient": patient_name,
                     "Date": date.strftime("%Y-%m-%d"),
-                    "Time": time.strftime("%H:%M"),
+                    "Time": time,
                     "Reason": reason if reason else "-",
                 }
                 st.session_state["appointments"].append(new_appointment)
                 st.toast(
-                    f"Berhasil menjadwalkan temu untuk **{patient_name}** pada tanggal {date} pukul {time.strftime('%H:%M')}."
+                    f"Berhasil menjadwalkan temu untuk **{patient_name}** pada tanggal {date} pukul {time}."
                 )
 
         st.markdown("---")
