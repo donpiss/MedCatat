@@ -8,7 +8,7 @@ st.set_page_config(
     page_title="Clinic Management System",
     layout="wide",
     page_icon="🩺",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="auto",
 )
 
 # Custom CSS untuk merapikan tampilan
