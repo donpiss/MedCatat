@@ -4,13 +4,21 @@ import streamlit as st
 
 # Konfigurasi halaman
 st.set_page_config(
-    page_title="Clinic Management System", layout="centered", page_icon="🩺", initial_sidebar_state="auto"
+    page_title="Clinic Management System",
+    layout="wide",
+    page_icon="🩺",
+    initial_sidebar_state="auto",
 )
 
-# Custom CSS untuk tampilan lebih profesional, minimalis, dan clean
+# Custom CSS untuk merapatkan jarak atas & merapikan tampilan
 st.markdown(
     """
     <style>
+        /* Mengurangi padding bawaan bagian atas halaman Streamlit */
+        .block-container {
+            padding-top: 1.5rem !important;
+            padding-bottom: 2rem !important;
+        }
         .main {
             background-color: #f8f9fa;
         }
@@ -25,28 +33,15 @@ st.markdown(
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
             border: 1px solid #eef0f2;
         }
-
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
-        
-        /* Pengaturan padding khusus layar HP */
-        @media (max-width: 768px) {
-            .block-container {
-                padding-top: 1rem;
-                padding-left: 0.5rem;
-                padding-right: 0.5rem;
-            }
-            /* Membuat tombol di sidebar memenuhi lebar layar HP */
-            .stButton>button {
-                width: 100%;
-            }
+        [data-testid="stSidebarNav"] {
+            display: none;
         }
     </style>
 """,
     unsafe_allow_html=True,
 )
 
-# Inisialisasi data pasien dan janji temu di session_state
+# Inisialisasi data dan status di session_state
 if "patients" not in st.session_state:
     st.session_state["patients"] = []
 
@@ -67,7 +62,9 @@ def show_patient_details(patient_name):
     st.rerun()
 
 
-# Sidebar Navigasi
+# ----------------------------------------------------
+# SIDEBAR NAVIGASI
+# ----------------------------------------------------
 st.sidebar.title("🩺 MedCatat")
 st.sidebar.markdown("---")
 
@@ -78,16 +75,59 @@ menu_options = [
     "📅 Schedule Appointment",
 ]
 
-# Sinkronisasi menu dengan session_state agar bisa dipindah secara programatik
+# Sinkronisasi menu dengan session_state
 selected_menu = st.sidebar.radio(
     "Navigasi", menu_options, index=menu_options.index(st.session_state["menu"])
 )
-st.session_state["menu"] = selected_menu
+
+if selected_menu != st.session_state["menu"]:
+    st.session_state["menu"] = selected_menu
+    st.rerun()
+
 menu = st.session_state["menu"]
 
 st.sidebar.markdown("---")
 st.sidebar.info(
     "Sistem Manajemen Klinik Sederhana\nVersi 1.0 - Clean & Minimalist"
+)
+
+# ----------------------------------------------------
+# SCRIPT JS AGAR SIDEBAR AUTO-CLOSE DI MOBILE SAAT MENU DIKLIK
+# ----------------------------------------------------
+st.components.v1.html(
+    """
+    <script>
+        const doc = window.parent.document;
+        
+        // Fungsi untuk mencari dan menutup sidebar
+        function setupSidebarClose() {
+            const radioOptions = doc.querySelectorAll('[data-testid="stSidebar"] [data-testid="stRadio"] label');
+            
+            radioOptions.forEach(option => {
+                // Hindari duplikasi event listener
+                if (!option.hasAttribute('data-listener-attached')) {
+                    option.setAttribute('data-listener-attached', 'true');
+                    option.addEventListener('click', () => {
+                        // Jalankan hanya jika lebar layar masuk kategori mobile (< 768px)
+                        if (window.parent.innerWidth < 768) {
+                            const collapseButtons = doc.querySelectorAll('button[kind="header"]');
+                            collapseButtons.forEach(btn => {
+                                const label = btn.getAttribute('aria-label');
+                                if (label && (label.includes('Collapse') || label.includes('Close') || label.includes('sidebar'))) {
+                                    btn.click();
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        // Jalankan secara berkala karena Streamlit merender komponen secara dinamis
+        setInterval(setupSidebarClose, 500);
+    </script>
+    """,
+    height=0,
 )
 
 # ----------------------------------------------------
@@ -98,7 +138,6 @@ if menu == "🏠 Dashboard":
     st.markdown("Ringkasan aktivitas dan jadwal kunjungan klinik hari ini.")
     st.markdown("")
 
-    # Statistik utama (Metrik Cards)
     col1, col2, col3 = st.columns(3)
     with col1:
         st.metric(label="Total Pasien", value=len(st.session_state["patients"]))
@@ -123,14 +162,11 @@ if menu == "🏠 Dashboard":
 
     if st.session_state["appointments"]:
         df_appointments = pd.DataFrame(st.session_state["appointments"])
-
-        # Konversi kolom Date dan Time ke tipe datetime untuk diurutkan
         try:
             df_appointments["Datetime"] = pd.to_datetime(
                 df_appointments["Date"] + " " + df_appointments["Time"],
                 errors="coerce",
             )
-            # Urutkan dari yang paling dekat dengan waktu sekarang
             df_appointments = df_appointments.sort_values(by="Datetime")
         except Exception:
             pass
@@ -145,7 +181,7 @@ if menu == "🏠 Dashboard":
                             unsafe_allow_html=True,
                         )
                     with col_btn:
-                        if st.button("Lihat Pasien", key=f"view_dash_{i}"):
+                        if st.button("Lihat", key=f"view_dash_{i}"):
                             show_patient_details(row["Patient"])
                     st.divider()
         else:
@@ -164,8 +200,6 @@ elif menu == "➕ Add Patient":
     col1, col2 = st.columns(2)
     with col1:
         name = st.text_input("Nama Lengkap*")
-
-        # Input Tanggal Lahir (Tanpa input umur manual/otomatis)
         tgl_lahir = st.date_input(
             "Tanggal Lahir",
             value=datetime(1995, 1, 1),
@@ -173,10 +207,10 @@ elif menu == "➕ Add Patient":
             max_value=datetime.today(),
             key="input_tgl_lahir",
         )
-
         gender = st.selectbox("Jenis Kelamin", ["Laki-laki", "Perempuan"])
         blood_type = st.selectbox(
-            "Golongan Darah", ["A", "B", "AB", "O", "Tidak Tahu"])
+            "Golongan Darah", ["A", "B", "AB", "O", "Tidak Tahu"]
+        )
 
     with col2:
         contact = st.text_input("Nomor Kontak / WhatsApp")
@@ -222,7 +256,6 @@ elif menu == "📋 View Patients":
         st.subheader("🔍 Detail Profil Pasien")
 
         patient_names = [p["Name"] for p in st.session_state["patients"]]
-
         default_index = 0
         if st.session_state["selected_patient"] in patient_names:
             default_index = patient_names.index(
@@ -234,7 +267,6 @@ elif menu == "📋 View Patients":
             patient_names,
             index=default_index,
         )
-
         st.session_state["selected_patient"] = selected_dropdown
 
         if st.session_state["selected_patient"]:
