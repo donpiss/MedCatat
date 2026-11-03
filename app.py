@@ -195,7 +195,7 @@ elif selected == "➕ Add Patient":
                 "Date Added": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             }
             st.session_state["patients"].append(new_patient)
-            st.success(f"Pasien atas nama **{name}** berhasil ditambahkan!")
+            st.toast(f"Pasien atas nama **{name}** berhasil ditambahkan!")
 
 # ----------------------------------------------------
 # 3. LIHAT DAFTAR PASIEN & DETAIL
@@ -296,7 +296,7 @@ elif selected == "📅 Schedule Appointment":
                     "Reason": reason if reason else "-",
                 }
                 st.session_state["appointments"].append(new_appointment)
-                st.success(
+                st.toast(
                     f"Berhasil menjadwalkan temu untuk **{patient_name}** pada tanggal {date} pukul {time.strftime('%H:%M')}."
                 )
 
